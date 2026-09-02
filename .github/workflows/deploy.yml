@@ -1,0 +1,76 @@
+name: Publicar Imagen en Docker Hub
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  test-and-security: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.14
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest bandit
+
+      - name: Ejecutar pruebas de seguridad con Bandit
+        run: bandit -r . -s B101
+      
+      - name: Ejecutar pruebas pytest
+        run: pytest 
+
+  build-and-push:
+    needs: test-and-security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v3
+
+      - name: Iniciar sesion en Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Construir imagen
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          no-cache: true
+          tags: natalia2208/evidencia_2:latest
+
+      - name: Escanear contenedor con Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'natalia2208/evidencia_2:latest'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH' 
+
+      - name: Subir la imagen a Docker Hub
+        run: docker push natalia2208/Evidencia_2:latest
+
+      - name: Desplegar el servidor cloud
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ~/Evidencia_2
+            docker pull natalia2208/Evidencia_2:latest        
+            docker compose up -d --force-recreate app_backend
