@@ -71,6 +71,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/Evidencia_2
-            docker pull natalia2208/Evidencia_2:latest        
-            docker compose up -d --force-recreate app_backend
+            cd ~/evidencia_2
+            docker pull natalia2208/evidencia_2:latest        
+            docker compose up -d
