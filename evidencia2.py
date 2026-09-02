@@ -8,7 +8,7 @@ app  = Flask(__name__)
 db_config = {
             "host":  "servidor-bd-ejemplo",
             "user": "root",
-            "password": "sena123",
+            "password": os.getenv("MYSQL_ROOT_PASSWORD"),
             "database": os.getenv("MYSQL_DATABASE"),
             "connect_timeout": 3,
             "cursorclass": pymysql.cursors.DictCursor, #devuele los datos como diccionario para HTML 
