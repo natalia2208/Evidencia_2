@@ -62,7 +62,7 @@ jobs:
           severity: 'CRITICAL,HIGH' 
 
       - name: Subir la imagen a Docker Hub
-        run: docker push natalia2208/Evidencia_2:latest
+        run: docker push natalia2208/evidencia_2:latest
 
       - name: Desplegar el servidor cloud
         uses: appleboy/ssh-action@v1.0.3
