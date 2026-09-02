@@ -72,5 +72,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/Evidencia_2
+            git pull origin master
             sudo docker pull natalia2208/evidencia_2:latest        
             sudo docker compose up -d
